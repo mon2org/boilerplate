@@ -84,16 +84,16 @@ jobs:
 
           issue_count=0
 
-          welcome_template=".github/initial/welcome-issue-template.md"
-          if [ -f "${welcome_template}" ]; then
-            create_issue_from_template "${welcome_template}"
-            echo "Welcome issue created first."
+          WELCOME_template=".github/initial/WELCOME-issue-template.md"
+          if [ -f "${WELCOME_template}" ]; then
+            create_issue_from_template "${WELCOME_template}"
+            echo "WELCOME issue created first."
           else
-            echo "${welcome_template} not found. Skipping prioritized welcome issue."
+            echo "${WELCOME_template} not found. Skipping prioritized WELCOME issue."
           fi
 
           while IFS= read -r -d '' template; do
-            if [ "${template}" = "${welcome_template}" ]; then
+            if [ "${template}" = "${WELCOME_template}" ]; then
               continue
             fi
             create_issue_from_template "${template}"

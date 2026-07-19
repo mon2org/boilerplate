@@ -7,6 +7,6 @@
 - デフォルトブランチ: {{DEFAULT_BRANCH}}
 
 ## 作業チェックリスト
-- [ ] README を更新する
+- [ ] [README]({{REPO_URL}}/blog/{{DEFAULT_BRANCH}}/.github/README.md) を更新する
 - [ ] 開発ルールを決める
 - [ ] 必要なラベルとプロジェクト設定を整備する
