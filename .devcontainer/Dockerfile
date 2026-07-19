@@ -10,6 +10,7 @@ ENV MISE_CONFIG_DIR=/home/${USERNAME}/.config/mise
 ENV MISE_DISABLE_TOOLS=1
 ENV PATH=/home/${USERNAME}/.local/share/mise/shims:/home/${USERNAME}/.local/bin:${PATH}
 
+# 💡 共通パッケージの導入、ユーザー作成、パスワードなしsudo権限の付与を一括処理
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -18,11 +19,10 @@ RUN apt-get update \
     zsh \
     libatomic1 \
     sudo \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
+  && rm -rf /var/lib/apt/lists/* \
+  && groupadd --gid "${USER_GID}" "${USERNAME}" \
   && useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/zsh "${USERNAME}" \
-  && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \ # 💡 ★vscodeユーザーにパスワードなしのsudo権限を付与
+  && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
   && chmod 0440 /etc/sudoers.d/${USERNAME}
 
 RUN curl -fsSL https://mise.run | sh \
