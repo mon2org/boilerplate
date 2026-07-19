@@ -5,13 +5,20 @@ on:
     branches:
       - '**'
 
+# 💡 Reusable Workflow呼び出しとGitプッシュに必要な最小限の権限を設定
 permissions:
+  id-token: write
   contents: write
   issues: write
-  administration: write # ★リポジトリの設定変更（gh repo edit等）に必須！
 
 jobs:
+  # 🌐 1. 中央の共通ワークフローを呼び出してトークンを取得
+  get-token:
+    uses: mon2org/common/.github/workflows/fetch-github-app-token.yaml@main
+
+  # 🛠️ 2. 取得した強いトークンを使って初期化処理を完結させる
   remove-workflow:
+    needs: get-token # ★ get-token ジョブの完了を待つ
     if: github.event.before == '0000000000000000000000000000000000000000' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
@@ -26,14 +33,16 @@ jobs:
           echo "first_push=${{ github.event.before == '0000000000000000000000000000000000000000' }}"
           echo "matches_default_branch=${{ github.ref_name == github.event.repository.default_branch }}"
 
+      # 💡 従来の GITHUB_TOKEN から Cloudflare 経由の強力なトークンに差し替え
       - name: Configure GitHub repository
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ needs.get-token.outputs.token }}
         run: bash .github/initial/scripts/configure_repo.sh
 
+      # 💡 Issue作成も強力なトークンで実行
       - name: Create issues from templates
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ needs.get-token.outputs.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: bash .github/initial/scripts/create_issues.sh
 
@@ -42,5 +51,12 @@ jobs:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: bash .github/initial/scripts/generate_readme.sh
 
+      # 🧹 最後のクリーンアッププッシュにもトークンを適用できるようにenvを追加
       - name: Remove bootstrap files from the default branch
-        run: bash .github/initial/scripts/cleanup.sh
+        env:
+          GH_TOKEN: ${{ needs.get-token.outputs.token }}
+        run: |
+          git config --global user.name "mon2org-repo-bootstrapper[bot]"
+          git config --global user.email "mon2org-repo-bootstrapper[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          bash .github/initial/scripts/cleanup.sh
