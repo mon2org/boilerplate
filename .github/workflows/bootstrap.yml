@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   remove-workflow:
@@ -24,11 +25,34 @@ jobs:
           echo "first_push=${{ github.event.before == '0000000000000000000000000000000000000000' }}"
           echo "matches_default_branch=${{ github.ref_name == github.event.repository.default_branch }}"
 
-      - name: Remove this workflow from the default branch
+      - name: Create issues from templates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ ! -d .github/initial ]; then
+            echo ".github/initial not found. Skipping issue creation."
+            exit 0
+          fi
+
+          while IFS= read -r -d '' template; do
+            title=$(head -n 1 "${template}")
+            body_file=$(mktemp)
+            tail -n +2 "${template}" > "${body_file}"
+
+            if [ -z "${title}" ]; then
+              title=$(basename "${template}" .md)
+            fi
+
+            echo "Creating issue from ${template}"
+            gh issue create --title "${title}" --body-file "${body_file}"
+          done < <(find .github/initial -type f -name '*.md' -print0 | sort -z)
+
+      - name: Remove bootstrap files from the default branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          echo "Removing .github/workflows/bootstrap.yml from ${GITHUB_REF_NAME}"
-          git rm .github/workflows/bootstrap.yml
-          git commit -m "chore: remove bootstrap workflow" || exit 0
+          echo "Removing bootstrap files from ${GITHUB_REF_NAME}"
+          git rm -r --ignore-unmatch .github/initial
+          git rm --ignore-unmatch .github/workflows/bootstrap.yml
+          git commit -m "chore: complete bootstrap initialization" || exit 0
           git push origin HEAD:${GITHUB_REF_NAME}
