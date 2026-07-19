@@ -1,0 +1,12 @@
+{
+  "name": "boilerplate",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "onCreateCommand": "sh .devcontainer/scripts/on-create.sh",
+  "postCreateCommand": "sh .devcontainer/scripts/post-create.sh",
+  "postStartCommand": "sh .devcontainer/scripts/post-start.sh",
+  "updateContentCommand": "sh .devcontainer/scripts/update-content.sh"
+}
