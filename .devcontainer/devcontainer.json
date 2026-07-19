@@ -8,5 +8,15 @@
   "onCreateCommand": "sh .devcontainer/scripts/on-create.sh",
   "postCreateCommand": "sh .devcontainer/scripts/post-create.sh",
   "postStartCommand": "sh .devcontainer/scripts/post-start.sh",
-  "updateContentCommand": "sh .devcontainer/scripts/update-content.sh"
+  "updateContentCommand": "sh .devcontainer/scripts/update-content.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vsliveshare.vsliveshare",
+        "yzhang.markdown-all-in-one",
+        "shd101wyy.markdown-preview-enhanced",
+        "usernamehw.errorlens"
+      ]
+    }
+  }
 }
