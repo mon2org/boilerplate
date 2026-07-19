@@ -28,18 +28,18 @@ jobs:
       - name: Configure GitHub repository
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/script/configure_repo.sh
+        run: bash .github/initial/scripts/configure_repo.sh
 
       - name: Create issues from templates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: bash .github/script/create_issues.sh
+        run: bash .github/initial/scripts/create_issues.sh
 
       - name: Generate .github/README.md from template
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: bash .github/script/generate_readme.sh
+        run: bash .github/initial/scripts/generate_readme.sh
 
       - name: Remove bootstrap files from the default branch
-        run: bash .github/script/cleanup.sh
+        run: bash .github/initial/scripts/cleanup.sh
