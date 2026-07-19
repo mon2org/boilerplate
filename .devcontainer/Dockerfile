@@ -16,10 +16,14 @@ RUN apt-get update \
     curl \
     git \
     zsh \
+    libatomic1 \
+    sudo \
   && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
-  && useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/zsh "${USERNAME}"
+  && useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/zsh "${USERNAME}" \
+  && echo "${USERNAME} ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \ # 💡 ★vscodeユーザーにパスワードなしのsudo権限を付与
+  && chmod 0440 /etc/sudoers.d/${USERNAME}
 
 RUN curl -fsSL https://mise.run | sh \
   && mv /root/.local/bin/mise /usr/local/bin/mise \
