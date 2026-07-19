@@ -25,16 +25,21 @@ jobs:
           echo "first_push=${{ github.event.before == '0000000000000000000000000000000000000000' }}"
           echo "matches_default_branch=${{ github.ref_name == github.event.repository.default_branch }}"
 
+      - name: Configure GitHub repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/script/configure_repo.sh
+
       - name: Create issues from templates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: bash .github/initial/script/create_issues.sh
+        run: bash .github/script/create_issues.sh
 
       - name: Generate .github/README.md from template
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: bash .github/initial/script/generate_readme.sh
+        run: bash .github/script/generate_readme.sh
 
       - name: Remove bootstrap files from the default branch
-        run: bash .github/initial/script/cleanup.sh
+        run: bash .github/script/cleanup.sh
