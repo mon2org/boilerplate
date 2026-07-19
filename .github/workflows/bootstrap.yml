@@ -1,0 +1,26 @@
+name: Bootstrap
+
+on:
+  create:
+
+permissions:
+  contents: write
+
+jobs:
+  remove-workflow:
+    if: github.event.ref_type == 'branch' && github.event.ref == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove this workflow from the default branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/bootstrap.yml
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: remove bootstrap workflow"
+          git push origin HEAD:${{ github.event.repository.default_branch }}
